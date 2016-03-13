@@ -47,6 +47,21 @@ module CowAuth
       return nil
     end
 
+    def as_json(options = nil)
+      return {
+        uuid: self.uuid,
+        email: self.email,
+        sid: self.sid,
+        auth_token: User.fetch_api_key_from_redis(self.sid).try(:[], :auth_token),
+        first_name: self.first_name,
+        last_name: self.last_name,
+        sign_in_count: self.sign_in_count,
+        is_approved: self.is_approved,
+        created_at: self.created_at,
+        updated_at: self.updated_at
+      }
+    end
+
   protected
 
     def redis_key
