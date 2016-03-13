@@ -11,5 +11,11 @@ module CowAuth
         @current_user = User.authenticate_from_token(sid, auth_token)
       end
     end
+
+    def request_http_token_authentication(realm = 'Application', message = nil)
+      message ||= 'HTTP Token: Access denied.'
+      self.headers['WWW-Authenticate'] = %(Token realm="#{realm.tr('"'.freeze, ''.freeze)}")
+      self.__send__ :render, json: { error: message }, status: :unauthorized
+    end
   end
 end
