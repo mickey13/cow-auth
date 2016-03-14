@@ -39,27 +39,16 @@ module CowAuth
       $redis.del(self.redis_key)
     end
 
+    def auth_token
+      return User.fetch_api_key_from_redis(self.sid).try(:[], :auth_token)
+    end
+
     def self.authenticate_from_token(sid, auth_token)
       api_key = User.fetch_api_key_from_redis(sid)
       if api_key.present? && api_key.key?(:auth_token) && api_key.key?(:expires_at) && api_key[:auth_token] == auth_token && api_key[:expires_at] > Time.zone.now
         return User.find_by(sid: sid)
       end
       return nil
-    end
-
-    def as_json(options = nil)
-      return {
-        uuid: self.uuid,
-        email: self.email,
-        sid: self.sid,
-        auth_token: User.fetch_api_key_from_redis(self.sid).try(:[], :auth_token),
-        first_name: self.first_name,
-        last_name: self.last_name,
-        sign_in_count: self.sign_in_count,
-        is_approved: self.is_approved,
-        created_at: self.created_at,
-        updated_at: self.updated_at
-      }
     end
 
   protected
