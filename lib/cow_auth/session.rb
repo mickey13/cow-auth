@@ -1,14 +1,15 @@
+require 'cow_auth/not_authenticated_error'
+
 module CowAuth
   module Session
     extend ActiveSupport::Concern
 
     def create
-      user = User.find_by(email: params[:email])
-      if user.try(:authenticate, params[:password])
-        user.api_sign_in
-        render json: user
+      @user = User.find_by(email: params[:email])
+      if @user.try(:authenticate, params[:password])
+        @user.api_sign_in
       else
-        render json: { error: 'Invalid user credentials.' }, status: :unauthorized
+        raise CowAuth::NotAuthenticatedError.new('Invalid user credentials.')
       end
     end
 
@@ -16,7 +17,7 @@ module CowAuth
       if @current_user.try(:api_sign_out)
         head :ok
       else
-        render json: { error: 'Could not sign user out.' }, status: :unauthorized
+        raise CowAuth::NotAuthenticatedError.new('Could not sign user out.')
       end
     end
   end
