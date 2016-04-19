@@ -8,9 +8,8 @@ module CowAuth
   private
 
     def authenticate_user
-      authenticate_or_request_with_http_token do |api_key, options|
-        sid, auth_token = api_key.match(/sid=([[:alnum:]]*)&auth_token=([[:alnum:]]*)/).try(:captures)
-        @current_user = User.authenticate_from_token(sid, auth_token)
+      authenticate_or_request_with_http_token do |token, options|
+        @current_user = User.authenticate_from_token(options[:sid], token)
         raise CowAuth::NotAuthenticatedError.new('User not authenticated.') if @current_user.blank?
         return true
       end

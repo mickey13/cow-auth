@@ -22,7 +22,11 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Note that token and sid are both required.
+
+Example GET:
+
+    curl -X GET http://api.local.dev:3000/v1/test -i -H "Authorization: Token token=b5503c9b85b881f8b3ddbd82f511912c,sid=C3281846f3976809796f91cf6bbb35c53"
 
 Example Rails model generator command:
 
@@ -60,7 +64,7 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
     bundle exec gem build cow_auth.gemspec
-    bundle exec gem install cow_auth-0.1.0.gem
+    bundle exec gem install cow_auth-0.2.0.gem
 
 ## Contributing
 
