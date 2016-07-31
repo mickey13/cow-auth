@@ -30,7 +30,7 @@ module CowAuth
 
     def api_sign_in
       $redis.set(self.redis_key, {
-        auth_token: User.generate_random_hex_string,
+        auth_token: User.generate_auth_token,
         expires_at: User.generate_token_expires_at
       }.to_json)
     end
@@ -64,8 +64,8 @@ module CowAuth
       return true
     end
 
-    def self.generate_random_hex_string
-      return SecureRandom.hex(16)
+    def self.generate_auth_token
+      return SecureRandom.hex(32)
     end
 
     def self.generate_token_expires_at

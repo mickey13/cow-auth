@@ -1,7 +1,5 @@
 # CowAuth
 
-WARNING: This gem is in early development, which means you probably shouldn't use it yet for critical applications.
-
 The main goal of this gem is to provide API authentication for Rails (or Rails-like) web applications.
 
 ## Installation
@@ -20,7 +18,101 @@ Or install it yourself as:
 
     $ gem install cow_auth
 
-## Usage
+## Model
+
+Example Rails model generator command:
+
+    $ bundle exec rails generate model user email:string sid:string encrypted_password:string first_name:string last_name:string sign_in_count:integer
+
+    # Modified migration; includes indexes and other stuff you might not want.
+    class CreateUsers < ActiveRecord::Migration[5.0]
+      def change
+        create_table :users do |t|
+          t.string :uuid, null: false
+          t.string :email, null: false
+          t.string :sid, null: false
+          t.string :encrypted_password, null: false
+          t.string :first_name
+          t.string :last_name
+          t.integer :sign_in_count, default: 0, null: false
+          t.boolean :is_approved, default: false, null: false
+          t.boolean :is_deleted, default: false, null: false
+          t.timestamps
+        end
+        add_index :users, :uuid, unique: true
+        add_index :users, :email, unique: true
+        add_index :users, :sid, unique: true
+      end
+    end
+
+### Create User
+
+    User.create! email: 'email', password: 'password'
+
+## Session Authentication
+
+### Sign In View Example
+
+    <%= form_tag '/sessions' do %>
+      <%= label_tag(:email) %><br>
+      <%= text_field_tag(:email) %><br>
+      <%= label_tag(:password) %><br>
+      <%= password_field_tag(:password) %><br>
+      <%= submit_tag('Sign In') %>
+    <% end %>
+
+### Routes Example
+
+    get 'sessions/new' => 'sessions#new'
+    post 'sessions' => 'sessions#create'
+    delete 'sessions' => 'sessions#destroy'
+
+### Controllers
+
+Add the following lines in the controller(s) that you want to enforce authentication for.
+
+    include CowAuth::SessionAuth::AuthenticateRequest
+    before_action :authenticate_user
+
+### Application Controller Example
+
+    class ApplicationController < ActionController::Base
+      include CowAuth::SessionAuth::AuthenticateRequest
+
+      protect_from_forgery with: :exception
+
+      before_action :authenticate_user
+
+      rescue_from CowAuth::NotAuthenticatedError, with: :user_not_authenticated
+
+    private
+
+      def user_not_authenticated(exception)
+        flash[:notice] = exception.message
+        render sessions_new_path
+      end
+    end
+
+### Sessions Controller Example
+
+    class SessionsController < ApplicationController
+      include CowAuth::SessionAuth::SessionEndpoints
+
+      skip_before_action :authenticate_user, only: [:new, :create]
+
+      def sign_in_success_path
+        flash[:notice] = 'Successfully signed in.'
+        return home_path
+      end
+
+      def sign_out_success_path
+        return sessions_new_path
+      end
+    end
+
+## Token Authentication
+
+### Authenticated Request
 
 Note that token and sid are both required.
 
@@ -28,34 +120,37 @@ Example GET:
 
     curl -X GET http://api.local.dev:3000/v1/test -i -H "Authorization: Token token=b5503c9b85b881f8b3ddbd82f511912c,sid=C3281846f3976809796f91cf6bbb35c53"
 
-Example Rails model generator command:
+### Controllers
 
-    $ bundle exec rails generate model user email:string sid:string encrypted_password:string first_name:string last_name:string sign_in_count:integer
+Add the following lines in the controller(s) that you want to enforce authentication for.
 
-    # Modified migration; includes indexes.
-    class CreateUsers < ActiveRecord::Migration[5.0]
-      def change
-        create_table :users do |t|
-          t.string :email, null: false
-          t.string :sid, null: false
-          t.string :encrypted_password
-          t.string :first_name
-          t.string :last_name
-          t.integer :sign_in_count
-          t.timestamps
-        end
-        add_index :users, :email, unique: true
-        add_index :users, :sid, unique: true
+    include CowAuth::TokenAuth::AuthenticateRequest
+    before_action :authenticate_user
+
+### Application Controller Example
+
+    class ApplicationController < ActionController::API
+      include CowAuth::TokenAuth::AuthenticateRequest
+
+      before_action :authenticate_user
+
+      rescue_from CowAuth::NotAuthenticatedError, with: :user_not_authenticated
+
+    private
+
+      def user_not_authenticated(exception)
+        @message = exception.message
+        render 'errors/unauthorized', status: :unauthorized
       end
     end
 
-### Controllers
+### Sessions Controller Example
 
-Add the following lines in the controller(s) that you want to enforce authenticatication for.
+    class Api::V1::SessionsController < ApplicationController
+      include CowAuth::TokenAuth::SessionEndpoints
 
-    include CowAuth::Authentication
-    before_action :authenticate_user
-
+      skip_before_action :authenticate_user, only: [:create]
+    end
 
 ## Development
 
@@ -74,4 +169,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/mickey
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
