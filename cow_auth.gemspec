@@ -4,25 +4,26 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'cow_auth/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'cow_auth'
-  spec.version       = CowAuth::VERSION
-  spec.authors       = ['Mickey Cowden']
-  spec.email         = ['mickey@vt.edu']
+  spec.name = 'cow_auth'
+  spec.version = CowAuth::VERSION
+  spec.authors = ['Mickey Cowden']
+  spec.email = ['mickey@vt.edu']
 
-  spec.summary       = 'Summary'
-  spec.description   = 'Description'
-  spec.homepage      = 'https://github.com/mickey13/cow_auth'
-  spec.license       = 'MIT'
+  spec.summary = 'Authentication gem'
+  spec.description = 'The main goal of this gem is to provide session and / or API authentication for Rails (or Rails-like) web applications.'
+  spec.homepage = 'https://github.com/mickey13/cow_auth'
+  spec.license = 'MIT'
 
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.bindir        = 'exe'
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  spec.bindir = 'exe'
+  spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'bundler', '~> 1.11'
-  spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_development_dependency 'minitest', '~> 5.0'
-  # spec.add_runtime_dependency 'activesupport', '5.0.0.beta3'
-  spec.add_runtime_dependency 'scrypt', '~> 2.1'
-  # spec.add_runtime_dependency 'redis', '~> 3.2'
+  spec.required_ruby_version = '~> 2.3'
+
+  spec.add_development_dependency 'bundler', '~> 1.14'
+  spec.add_development_dependency 'rake', '~> 12.0'
+  spec.add_development_dependency 'minitest', '~> 5.10'
+  spec.add_runtime_dependency 'active_model_serializers', '~> 0.10'
+  spec.add_runtime_dependency 'scrypt', '~> 3.0'
 end

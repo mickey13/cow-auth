@@ -1,3 +1,4 @@
+require 'cow_auth/user_serializer'
 require 'cow_auth/not_authenticated_error'
 
 module CowAuth
@@ -9,6 +10,7 @@ module CowAuth
         @user = User.find_by(email: params[:email])
         if @user.try(:authenticate, params[:password])
           @user.api_sign_in
+          render json: UserSerializer.new(@user), status: :ok
         else
           raise CowAuth::NotAuthenticatedError.new('Invalid user credentials.')
         end

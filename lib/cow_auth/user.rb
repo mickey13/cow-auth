@@ -2,7 +2,6 @@ require 'scrypt'
 
 module CowAuth
   class User < ActiveRecord::Base
-
     after_initialize :generate_sid_if_necessary
 
     validates :email, presence: true
@@ -45,7 +44,11 @@ module CowAuth
 
     def self.authenticate_from_token(sid, auth_token)
       api_key = User.fetch_api_key_from_redis(sid)
-      if api_key.present? && api_key.key?(:auth_token) && api_key.key?(:expires_at) && api_key[:auth_token] == auth_token && api_key[:expires_at] > Time.zone.now
+      if api_key.present? &&
+          api_key.key?(:auth_token) &&
+          api_key.key?(:expires_at) &&
+          api_key[:auth_token] == auth_token &&
+          api_key[:expires_at] > Time.zone.now
         return User.find_by(sid: sid)
       end
       return nil

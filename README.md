@@ -1,6 +1,6 @@
 # CowAuth
 
-The main goal of this gem is to provide API authentication for Rails (or Rails-like) web applications.
+The main goal of this gem is to provide session and / or API authentication for Rails (or Rails-like) web applications.
 
 ## Installation
 
@@ -20,12 +20,14 @@ Or install it yourself as:
 
 ## Model
 
-Example Rails model generator command:
+### Generator (Example)
 
-    $ bundle exec rails generate model user email:string sid:string encrypted_password:string first_name:string last_name:string sign_in_count:integer
+    $ bundle exec rails generate model user uuid:string:uniq email:string:uniq sid:string:uniq encrypted_password:string first_name:string last_name:string sign_in_count:integer is_approved:boolean is_deleted:boolean
+
+### Migration (Example)
 
     # Modified migration; includes indexes and other stuff you might not want.
-    class CreateUsers < ActiveRecord::Migration[5.0]
+    class CreateUsers < ActiveRecord::Migration[5.1]
       def change
         create_table :users do |t|
           t.string :uuid, null: false
@@ -44,6 +46,12 @@ Example Rails model generator command:
         add_index :users, :sid, unique: true
       end
     end
+
+### Model Inheritance
+
+    class User < CowAuth::User
+    end
+
 
 ### Create User
 
@@ -112,13 +120,19 @@ Add the following lines in the controller(s) that you want to enforce authentica
 
 ## Token Authentication
 
+### Authenticate (Example)
+
+    curl -X POST -i --data-urlencode email=user@domain.tld --data-urlencode password=password https://api.domain.tld/v1/sessions
+
+    curl -X DELETE -i https://api.domain.tld/v1/sessions -H "Authorization: Token token=b5503c9b85b881f8b3ddbd82f511912cb5503c9b85b881f8b3ddbd82f511912c,sid=C3281846f3976809796f91cf6bbb35c53"
+
 ### Authenticated Request
 
 Note that token and sid are both required.
 
 Example GET:
 
-    curl -X GET http://api.local.dev:3000/v1/test -i -H "Authorization: Token token=b5503c9b85b881f8b3ddbd82f511912c,sid=C3281846f3976809796f91cf6bbb35c53"
+    curl -X GET -i https://api.domain.tld/v1/test -H "Authorization: Token token=b5503c9b85b881f8b3ddbd82f511912cb5503c9b85b881f8b3ddbd82f511912c,sid=C3281846f3976809796f91cf6bbb35c53"
 
 ### Controllers
 
@@ -139,8 +153,7 @@ Add the following lines in the controller(s) that you want to enforce authentica
     private
 
       def user_not_authenticated(exception)
-        @message = exception.message
-        render 'errors/unauthorized', status: :unauthorized
+        render json: { error: exception.message }, status: :unauthorized
       end
     end
 
@@ -159,7 +172,13 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
     bundle exec gem build cow_auth.gemspec
-    bundle exec gem install cow_auth-0.2.0.gem
+    bundle exec gem install cow_auth-0.1.0.gem
+
+### Notes
+
+    cow_auth> bundle exec gem build cow_auth.gemspec
+
+    app> bundle
 
 ## Contributing
 
