@@ -1,6 +1,6 @@
 require 'cow_auth/version'
 require 'cow_auth/user'
-require 'cow_auth/not_authenticated_error'
+require 'cow_auth/exceptions'
 require 'cow_auth/session_auth/session_endpoints'
 require 'cow_auth/session_auth/authenticate_request'
 require 'cow_auth/token_auth/session_endpoints'

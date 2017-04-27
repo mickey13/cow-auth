@@ -1,4 +1,4 @@
-require 'cow_auth/not_authenticated_error'
+require 'cow_auth/exceptions'
 
 module CowAuth
   module TokenAuth

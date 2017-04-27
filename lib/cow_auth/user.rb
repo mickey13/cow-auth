@@ -28,6 +28,7 @@ module CowAuth
     end
 
     def api_sign_in
+      User.assert_redis_handle_present
       $redis.set(self.redis_key, {
         auth_token: User.generate_auth_token,
         expires_at: User.generate_token_expires_at
@@ -35,6 +36,7 @@ module CowAuth
     end
 
     def api_sign_out
+      User.assert_redis_handle_present
       $redis.del(self.redis_key)
     end
 
@@ -76,8 +78,13 @@ module CowAuth
     end
 
     def self.fetch_api_key_from_redis(sid)
+      User.assert_redis_handle_present
       api_key = $redis.get("user_#{sid}")
       return api_key.present? ? JSON.parse(api_key).try(:symbolize_keys) : nil
+    end
+
+    def self.assert_redis_handle_present
+      raise CowAuth::RedisHandleMissingError.new('"$redis" handle not found.') unless $redis.present?
     end
   end
 end
