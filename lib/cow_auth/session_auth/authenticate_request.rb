@@ -12,6 +12,10 @@ module CowAuth
         raise CowAuth::NotAuthenticatedError.new('User not authenticated.') if @current_user.blank?
         return true
       end
+
+      def current_user
+        return @current_user
+      end
     end
   end
 end

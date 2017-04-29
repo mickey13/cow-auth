@@ -18,7 +18,7 @@ module CowAuth
 
       def destroy
         if @current_user.try(:api_sign_out)
-          head :ok
+          head :no_content
         else
           raise CowAuth::NotAuthenticatedError.new('Could not sign user out.')
         end

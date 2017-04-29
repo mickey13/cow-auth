@@ -15,6 +15,10 @@ module CowAuth
           return true
         end
       end
+
+      def current_user
+        return @current_user
+      end
     end
   end
 end
