@@ -30,7 +30,7 @@ module CowAuth
     def api_sign_in
       User.assert_redis_handle_present
       $redis.set(self.redis_key, {
-        auth_token: User.generate_auth_token,
+        auth_token: self.token_valid? ? self.auth_token : User.generate_auth_token,
         expires_at: User.generate_token_expires_at
       }.to_json)
     end
@@ -60,6 +60,14 @@ module CowAuth
 
     def redis_key
       return "user_#{self.sid}"
+    end
+
+    def token_valid?
+      api_key = User.fetch_api_key_from_redis(self.sid)
+      return api_key.present? &&
+          api_key.key?(:auth_token) &&
+          api_key.key?(:expires_at) &&
+          api_key[:expires_at] > Time.zone.now
     end
 
   private
