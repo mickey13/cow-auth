@@ -42,10 +42,12 @@ module CowAuth
         auth_token: self.token_valid? ? self.auth_token : self.generate_auth_token,
         expires_at: self.generate_token_expires_at
       }.to_json)
+      return true
     end
 
     def api_sign_out
       self.redis_handle.del(self.redis_key)
+      return true
     end
 
     def auth_token
