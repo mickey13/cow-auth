@@ -1,6 +1,6 @@
 # CowAuth
 
-The main goal of this gem is to provide session and / or API authentication for Rails (or Rails-like) web applications.
+The main goal of this gem is to provide token-based authentication for Rails (or Rails-like) web applications.
 
 ## Installation
 
@@ -22,36 +22,38 @@ Or install it yourself as:
 
 ### Generator (Example)
 
-    $ bundle exec rails generate model user uuid:string:uniq email:string:uniq sid:string:uniq encrypted_password:string first_name:string last_name:string sign_in_count:integer is_approved:boolean is_deleted:boolean
+    $ bundle exec rails generate model user uuid:string:uniq email:string:uniq sid:string:uniq encrypted_password:string locale:string first_name:string last_name:string role:integer sign_in_count:integer is_approved:boolean is_deleted:boolean
 
 ### Migration (Example)
 
     # Modified migration; includes indexes and other stuff you might not want.
-    class CreateUsers < ActiveRecord::Migration[5.1]
+    class CreateUsers < ActiveRecord::Migration[5.2]
       def change
         create_table :users do |t|
           t.string :uuid, null: false
           t.string :email, null: false
           t.string :sid, null: false
           t.string :encrypted_password, null: false
+          t.string :locale, null: false
           t.string :first_name
           t.string :last_name
+          t.integer :role, default: 0, null: false
           t.integer :sign_in_count, default: 0, null: false
           t.boolean :is_approved, default: false, null: false
           t.boolean :is_deleted, default: false, null: false
           t.timestamps
+          t.index [:uuid], unique: true
+          t.index [:email], unique: true
+          t.index [:sid], unique: true
         end
-        add_index :users, :uuid, unique: true
-        add_index :users, :email, unique: true
-        add_index :users, :sid, unique: true
       end
     end
 
-### Model Inheritance
+### Model Concern
 
-    class User < CowAuth::User
+    class User < ApplicationRecord
+      include CowAuth::User
     end
-
 
 ### Create User
 
@@ -80,6 +82,12 @@ Add the following lines in the controller(s) that you want to enforce authentica
     include CowAuth::TokenAuth::AuthenticateRequest
     before_action :authenticate_user
 
+Add the following private method to the ApplicationController (assuming User is the correct model).
+
+    def authentication_class
+      return User
+    end
+
 ### Application Controller Example
 
     class ApplicationController < ActionController::API
@@ -93,6 +101,10 @@ Add the following lines in the controller(s) that you want to enforce authentica
 
       def user_not_authenticated(exception)
         render json: { error: exception.message }, status: :unauthorized
+      end
+
+      def authentication_class
+        return User
       end
     end
 

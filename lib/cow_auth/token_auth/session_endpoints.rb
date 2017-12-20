@@ -1,4 +1,3 @@
-require 'cow_auth/user_serializer'
 require 'cow_auth/exceptions'
 
 module CowAuth
@@ -7,10 +6,10 @@ module CowAuth
       extend ActiveSupport::Concern
 
       def create
-        @user = User.find_by(email: params[:email])
-        if @user.try(:authenticate, params[:password])
-          @user.api_sign_in
-          render json: UserSerializer.new(@user), status: :ok
+        user = authentication_class.find_by(email: params[:email])
+        if user.try(:authenticate_with_password, params[:password])
+          user.api_sign_in
+          render json: { sid: user.sid, auth_token: user.auth_token }, status: :ok
         else
           raise CowAuth::NotAuthenticatedError.new('Invalid user credentials.')
         end
