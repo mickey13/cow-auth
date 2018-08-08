@@ -26,7 +26,7 @@ Configure your user model to add the authentication mechanism.
 
 #### Generator (Example)
 
-    $ bundle exec rails generate model user uuid:string:uniq email:string:uniq sid:string:uniq encrypted_password:string locale:string first_name:string last_name:string role:integer sign_in_count:integer is_approved:boolean is_deleted:boolean
+    $ bundle exec rails generate model user uuid:string:uniq email:string:uniq sid:string:uniq encrypted_password:string locale:string first_name:string last_name:string sign_in_count:integer is_enabled:boolean is_deleted:boolean
 
 #### Migration (Example)
 
@@ -41,9 +41,8 @@ Configure your user model to add the authentication mechanism.
           t.string :locale, null: false
           t.string :first_name
           t.string :last_name
-          t.integer :role, default: 0, null: false
           t.integer :sign_in_count, default: 0, null: false
-          t.boolean :is_approved, default: false, null: false
+          t.boolean :is_enabled, default: false, null: false
           t.boolean :is_deleted, default: false, null: false
           t.timestamps
           t.index [:uuid], unique: true

@@ -1,5 +1,4 @@
 require 'scrypt'
-require 'cow_auth/exceptions'
 
 module CowAuth
   module User
@@ -26,32 +25,29 @@ module CowAuth
     end
 
     def authenticate_with_token(auth_token)
-      api_key = self.fetch_api_key_from_redis(sid)
-      if api_key.present? &&
-          api_key.key?(:auth_token) &&
-          api_key.key?(:expires_at) &&
-          api_key[:auth_token] == auth_token &&
-          api_key[:expires_at] > Time.zone.now
+      if self.auth_token.present? &&
+          self.expires_at.present? &&
+          self.auth_token == auth_token &&
+          self.expires_at > Time.zone.now
         return true
       end
       return false
     end
 
     def api_sign_in
-      self.redis_handle.set(self.redis_key, {
+      self.update(
         auth_token: self.token_valid? ? self.auth_token : self.generate_auth_token,
         expires_at: self.generate_token_expires_at
-      }.to_json)
+      )
       return true
     end
 
     def api_sign_out
-      self.redis_handle.del(self.redis_key)
+      self.update(
+        auth_token: nil,
+        expires_at: nil
+      )
       return true
-    end
-
-    def auth_token
-      return self.fetch_api_key_from_redis(self.sid).try(:[], :auth_token)
     end
 
     def password=(new_password)
@@ -63,11 +59,6 @@ module CowAuth
 
   protected
 
-    def fetch_api_key_from_redis(sid)
-      api_key = self.redis_handle.get(self.redis_key)
-      return api_key.present? ? JSON.parse(api_key).try(:symbolize_keys) : nil
-    end
-
     def generate_auth_token
       return SecureRandom.hex(64)
     end
@@ -76,21 +67,10 @@ module CowAuth
       return 1.month.from_now
     end
 
-    def redis_handle
-      raise CowAuth::RedisHandleMissingError.new('"$redis" handle not found.') unless $redis.present?
-      return $redis
-    end
-
-    def redis_key
-      return "user_#{self.sid.downcase}"
-    end
-
     def token_valid?
-      api_key = self.fetch_api_key_from_redis(self.sid)
-      return api_key.present? &&
-          api_key.key?(:auth_token) &&
-          api_key.key?(:expires_at) &&
-          api_key[:expires_at] > Time.zone.now
+      return self.auth_token.present? &&
+          self.expires_at.present? &&
+          self.expires_at > Time.zone.now
     end
 
   private
