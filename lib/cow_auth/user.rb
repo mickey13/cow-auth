@@ -34,7 +34,7 @@ module CowAuth
       return false
     end
 
-    def api_sign_in
+    def create_auth_token
       self.update(
         auth_token: self.token_valid? ? self.auth_token : self.generate_auth_token,
         expires_at: self.generate_token_expires_at
@@ -42,7 +42,7 @@ module CowAuth
       return true
     end
 
-    def api_sign_out
+    def destroy_auth_token
       self.update(
         auth_token: nil,
         expires_at: nil
