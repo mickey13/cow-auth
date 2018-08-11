@@ -99,12 +99,40 @@ Add the following private method to the ApplicationController (assuming User is 
       end
     end
 
-#### Sessions Controller Example
+#### Sessions Controller HTML Example
+
+The `sign_in_success_path` and `sign_out_success_path` methods need to be defined for redirecting after successful sign-in and sign-out.
+
+    class SessionsController < ApplicationController
+      include CowAuth::SessionAuth::SessionEndpoints
+
+      skip_before_action :authenticate_user, only: [:new, :create]
+
+    private
+
+      def sign_in_success_path
+        return root_url
+      end
+
+      def sign_out_success_path
+        return sign_in_url
+      end
+    end
+
+#### Sessions Controller JSON Example
+
+The `sign_in_success_response_payload` method can optionally be overridden to customize the response payload for a successful sign-in.
 
     class Api::V1::SessionsController < ApplicationController
       include CowAuth::TokenAuth::SessionEndpoints
 
       skip_before_action :authenticate_user, only: [:create]
+
+    protected
+
+      def sign_in_success_response_payload
+        return { uuid: @user.uuid, sid: @user.sid, auth_token: @user.auth_token }
+      end
     end
 
 ### Token Authentication
