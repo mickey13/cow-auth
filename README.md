@@ -1,6 +1,6 @@
 # CowAuth
 
-The main goal of this gem is to provide token-based authentication for Rails (or Rails-like) web applications.
+The goal of this gem is to provide token-based authentication for Rails (or Rails-like) web applications.
 
 ## Installation
 
@@ -12,7 +12,7 @@ gem 'cow_auth'
 
 And then execute:
 
-    $ bundle
+    $ bundle install
 
 Or install it yourself as:
 
@@ -31,31 +31,32 @@ Configure your user model to add the authentication mechanism.
 #### Migration (Example)
 
     # Modified migration; includes indexes and other stuff you might not want.
-    class CreateUsers < ActiveRecord::Migration[5.2]
+    class CreateUsers < ActiveRecord::Migration[6.0]
       def change
         create_table :users do |t|
           t.string :uuid, null: false
           t.string :email, null: false
           t.string :sid, null: false
-          t.string :encrypted_password, null: false
           t.string :locale, null: false
+          t.string :encrypted_password, null: false
+          t.string :auth_token
           t.string :first_name
           t.string :last_name
           t.integer :sign_in_count, default: 0, null: false
           t.boolean :is_enabled, default: false, null: false
           t.boolean :is_deleted, default: false, null: false
+          t.timestamp :expires_at
           t.timestamps
-          t.index [:uuid], unique: true
-          t.index [:email], unique: true
-          t.index [:sid], unique: true
         end
+        add_index :users, :uuid, unique: true
+        add_index :users, :email, unique: true
+        add_index :users, :sid, unique: true
       end
     end
 
-#### Model Concern
+#### Model Inheritance
 
-    class User < ApplicationRecord
-      include CowAuth::User
+    class User < CowAuth::User
     end
 
 #### Create User
@@ -165,7 +166,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/mickey13/cow_auth. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/mickey13/cow-auth. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/mickey13/cow-auth/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
@@ -173,4 +174,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the CowAuth project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/mickey13/cow-auth/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the CowAuth project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/mickey13/cow-auth/blob/master/CODE_OF_CONDUCT.md).

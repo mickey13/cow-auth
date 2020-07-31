@@ -1,19 +1,16 @@
+require 'active_record'
 require 'scrypt'
 
 module CowAuth
-  module User
-    extend ActiveSupport::Concern
+  class User < ActiveRecord::Base
+    after_initialize :generate_sid_if_necessary
 
-    included do
-      after_initialize :generate_sid_if_necessary
-
-      validates :email, presence: true
-      validates :email, uniqueness: true
-      validates :encrypted_password, presence: true
-      validates :sid, presence: true
-      validates :sid, uniqueness: true
-      validates :sid, format: { with: /\AC[a-z0-9]{32}\z/ }
-    end
+    validates :email, presence: true
+    validates :email, uniqueness: true
+    validates :encrypted_password, presence: true
+    validates :sid, presence: true
+    validates :sid, uniqueness: true
+    validates :sid, format: { with: /\AC[a-z0-9]{32}\z/ }
 
     def authenticate_with_password(password)
       return false if self.encrypted_password.blank?
