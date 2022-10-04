@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.description = 'The goal of this gem is to provide token-based authentication for Rails (or Rails-like) web applications.'
   spec.homepage = 'https://github.com/mickey13/cow-auth'
   spec.license = 'MIT'
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.3.0')
+  spec.required_ruby_version = '>= 2.6.0'
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = spec.homepage
@@ -27,6 +27,6 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_runtime_dependency 'activerecord', '~> 6.0'
-  spec.add_runtime_dependency 'scrypt', '~> 3.0'
+  spec.add_dependency 'activerecord', '~> 7.0'
+  spec.add_dependency 'scrypt', '~> 3.0'
 end

@@ -26,12 +26,12 @@ Configure your user model to add the authentication mechanism.
 
 #### Generator (Example)
 
-    $ bundle exec rails generate model user uuid:string:uniq email:string:uniq sid:string:uniq encrypted_password:string locale:string first_name:string last_name:string sign_in_count:integer is_enabled:boolean is_deleted:boolean
+    $ bundle exec rails generate model user uuid:string:uniq email:string:uniq sid:string:uniq locale:string encrypted_password:string auth_token:string first_name:string last_name:string sign_in_count:integer is_enabled:boolean is_deleted:boolean expires_at:timestamp
 
 #### Migration (Example)
 
     # Modified migration; includes indexes and other stuff you might not want.
-    class CreateUsers < ActiveRecord::Migration[6.0]
+    class CreateUsers < ActiveRecord::Migration[7.0]
       def change
         create_table :users do |t|
           t.string :uuid, null: false
